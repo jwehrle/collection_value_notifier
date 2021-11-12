@@ -31,34 +31,20 @@ class _ListenerEntry extends LinkedListEntry<_ListenerEntry> {
 }
 
 class Notifier implements Listenable {
-  LinkedList<_ListenerEntry>? _listeners = LinkedList<_ListenerEntry>();
-
-  bool _debugAssertNotDisposed() {
-    assert(() {
-      if (_listeners == null) {
-        throw FlutterError('A $runtimeType was used after being disposed.\n'
-            'Once you have called dispose() on a $runtimeType, it can no longer be used.');
-      }
-      return true;
-    }());
-    return true;
-  }
+  LinkedList<_ListenerEntry> _listeners = LinkedList<_ListenerEntry>();
 
   bool get hasListeners {
-    assert(_debugAssertNotDisposed());
-    return _listeners!.isNotEmpty;
+    return _listeners.isNotEmpty;
   }
 
   @override
   void addListener(VoidCallback listener) {
-    assert(_debugAssertNotDisposed());
-    _listeners!.add(_ListenerEntry(listener));
+    _listeners.add(_ListenerEntry(listener));
   }
 
   @override
   void removeListener(VoidCallback listener) {
-    assert(_debugAssertNotDisposed());
-    for (final _ListenerEntry entry in _listeners!) {
+    for (final _ListenerEntry entry in _listeners) {
       if (entry.listener == listener) {
         entry.unlink();
         return;
@@ -68,16 +54,14 @@ class Notifier implements Listenable {
 
   @mustCallSuper
   void dispose() {
-    assert(_debugAssertNotDisposed());
-    _listeners = null;
+    _listeners.clear();
   }
 
   void notifyListeners() {
-    assert(_debugAssertNotDisposed());
-    if (_listeners!.isEmpty) return;
+    if (_listeners.isEmpty) return;
 
     final List<_ListenerEntry> localListeners =
-        List<_ListenerEntry>.from(_listeners!);
+        List<_ListenerEntry>.from(_listeners);
 
     for (final _ListenerEntry entry in localListeners) {
       try {
@@ -102,17 +86,17 @@ class Notifier implements Listenable {
   }
 }
 
-class ListNotifier<T> extends ValueNotifier implements ListListenable<T> {
+class ListNotifier<T> extends Notifier implements ListListenable<T> {
   List<T> _value;
 
-  ListNotifier(this._value) : super(_value);
+  ListNotifier(this._value) : super();
 
   @override
   List<T> get value => _value;
   set value(newValue) {
     SchedulerBinding.instance?.scheduleTask(() {
       if (DeepCollectionEquality().equals(_value, newValue)) return;
-      _value = List<T>.from(newValue as List);
+      _value = List<T>.from(newValue);
       notifyListeners();
     }, Priority.animation);
   }
@@ -122,10 +106,10 @@ class ListNotifier<T> extends ValueNotifier implements ListListenable<T> {
   }
 }
 
-class SetNotifier<T> extends ValueNotifier implements SetListenable<T> {
+class SetNotifier<T> extends Notifier implements SetListenable<T> {
   Set<T> _value;
 
-  SetNotifier(this._value) : super(_value);
+  SetNotifier(this._value) : super();
 
   @override
   Set<T> get value => _value;
@@ -142,10 +126,10 @@ class SetNotifier<T> extends ValueNotifier implements SetListenable<T> {
   }
 }
 
-class MapNotifier<K, V> extends ValueNotifier implements MapListenable<K, V> {
+class MapNotifier<K, V> extends Notifier implements MapListenable<K, V> {
   Map<K, V> _value;
 
-  MapNotifier(this._value) : super(_value);
+  MapNotifier(this._value) : super();
 
   @override
   Map<K, V> get value => _value;
@@ -160,4 +144,31 @@ class MapNotifier<K, V> extends ValueNotifier implements MapListenable<K, V> {
   void notify() {
     notifyListeners();
   }
+}
+
+/// A [ChangeNotifier] that holds a single value.
+///
+/// When [value] is replaced with something that is not equal to the old
+/// value as evaluated by the equality operator ==, this class notifies its
+/// listeners.
+class SafeValueNotifier<T> extends Notifier implements ValueListenable<T> {
+  /// Creates a [ChangeNotifier] that wraps this value.
+  SafeValueNotifier(this._value);
+
+  /// The current value stored in this notifier.
+  ///
+  /// When the value is replaced with something that is not equal to the old
+  /// value as evaluated by the equality operator ==, this class notifies its
+  /// listeners.
+  @override
+  T get value => _value;
+  T _value;
+  set value(T newValue) {
+    if (_value == newValue) return;
+    _value = newValue;
+    notifyListeners();
+  }
+
+  @override
+  String toString() => '${describeIdentity(this)}($value)';
 }

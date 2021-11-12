@@ -89,4 +89,90 @@ void main() {
     };
     Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
   });
+
+  test('SafeValueNotifier int should not notify', () {
+    final SafeValueNotifier<int> safeValueNotifier = SafeValueNotifier<int>(0);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 0;
+    expect(didChange, false);
+  });
+
+  test('SafeValueNotifier int should notify', () {
+    final SafeValueNotifier<int> safeValueNotifier = SafeValueNotifier<int>(0);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 1;
+    expect(didChange, true);
+  });
+
+  test('SafeValueNotifier String should not notify', () {
+    final SafeValueNotifier<String> safeValueNotifier =
+        SafeValueNotifier<String>('A');
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 'A';
+    expect(didChange, false);
+  });
+
+  test('SafeValueNotifier String should notify', () {
+    final SafeValueNotifier<String> safeValueNotifier =
+        SafeValueNotifier<String>('A');
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 'B';
+    expect(didChange, true);
+  });
+
+  test('SafeValueNotifier double should not notify', () {
+    final SafeValueNotifier<double> safeValueNotifier =
+        SafeValueNotifier<double>(1.0);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 1.0;
+    expect(didChange, false);
+  });
+
+  test('SafeValueNotifier double should notify', () {
+    final SafeValueNotifier<double> safeValueNotifier =
+        SafeValueNotifier<double>(1.0);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = 1.2;
+    expect(didChange, true);
+  });
+
+  test('SafeValueNotifier bool should not notify', () {
+    final SafeValueNotifier<bool> safeValueNotifier =
+        SafeValueNotifier<bool>(true);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = true;
+    expect(didChange, false);
+  });
+
+  test('SafeValueNotifier bool should notify', () {
+    final SafeValueNotifier<bool> safeValueNotifier =
+        SafeValueNotifier<bool>(true);
+    bool didChange = false;
+    safeValueNotifier.addListener(() {
+      didChange = true;
+    });
+    safeValueNotifier.value = false;
+    expect(didChange, true);
+  });
 }
