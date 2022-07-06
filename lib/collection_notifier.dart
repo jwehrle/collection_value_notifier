@@ -4,7 +4,6 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 /// Adapted from ChangeNotifier and ValueListenable and ValueNotifier for Lists,
@@ -94,7 +93,7 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   @override
   List<T> get value => _value;
   set value(newValue) {
-    SchedulerBinding.instance?.scheduleTask(() {
+    SchedulerBinding.instance.scheduleTask(() {
       if (DeepCollectionEquality().equals(_value, newValue)) return;
       _value = List<T>.from(newValue);
       notifyListeners();
@@ -114,7 +113,7 @@ class SetNotifier<T> extends Notifier implements SetListenable<T> {
   @override
   Set<T> get value => _value;
   set value(newValue) {
-    SchedulerBinding.instance?.scheduleTask(() {
+    SchedulerBinding.instance.scheduleTask(() {
       if (DeepCollectionEquality().equals(_value, newValue)) return;
       _value = Set<T>.from(newValue);
       notifyListeners();
@@ -134,7 +133,7 @@ class MapNotifier<K, V> extends Notifier implements MapListenable<K, V> {
   @override
   Map<K, V> get value => _value;
   set value(newValue) {
-    SchedulerBinding.instance?.scheduleTask(() {
+    SchedulerBinding.instance.scheduleTask(() {
       if (DeepCollectionEquality().equals(_value, newValue)) return;
       _value = Map<K, V>.from(newValue);
       notifyListeners();

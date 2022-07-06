@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collection_value_notifier/collection_notifier.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('ListNotifier shallow should notify', () {
     final ListNotifier<String> listNotifier =
         ListNotifier<String>(['a', 'b', 'c']);

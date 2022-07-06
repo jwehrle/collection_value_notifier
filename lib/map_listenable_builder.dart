@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection_value_notifier/collection_notifier.dart';
 
