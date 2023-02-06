@@ -1,3 +1,4 @@
+import 'package:collection_value_notifier/list_extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collection_value_notifier/collection_notifier.dart';
@@ -175,5 +176,71 @@ void main() {
     });
     safeValueNotifier.value = false;
     expect(didChange, true);
+  });
+
+  test('Reorder valid', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(1, 0);
+    expect(sut, [2, 1, 3]);
+  });
+
+  test('Reorder invalid: length < 2', () {
+    final List<int> sut = [1];
+    sut.reorder(1, 0);
+    expect(sut, [1]);
+  });
+
+  test('Reorder invalid: oldIndex too great', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(3, 0);
+    expect(sut, [1, 2, 3]);
+  });
+
+  test('Reorder invalid: newIndex too great', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(1, 3);
+    expect(sut, [1, 2, 3]);
+  });
+
+  test('Reorder invalid: oldIndex less than zero', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(-1, 0);
+    expect(sut, [1, 2, 3]);
+  });
+
+  test('Reorder invalid: newIndex less than zero', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(1, -1);
+    expect(sut, [1, 2, 3]);
+  });
+
+  test('Reorder invalid: oldIndex == newIndex', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(1, 1);
+    expect(sut, [1, 2, 3]);
+  });
+
+  test('findFirstWhere: contains element', () {
+    final List<int> sut = [1, 2, 3];
+    final result = sut.findFirstWhere((item) => item == 2);
+    expect(result, 2);
+  });
+
+  test('findFirstWhere: does not contains element', () {
+    final List<int> sut = [1, 2, 3];
+    final result = sut.findFirstWhere((item) => item == 4);
+    expect(result, null);
+  });
+
+  test('findFirstWhere: contains multiple matching elements', () {
+    final List<int> sut = [1, 1, 1];
+    final result = sut.findFirstWhere((item) => item == 1);
+    expect(result, 1);
+  });
+
+  test('findFirstWhere: list is empty', () {
+    final List<int> sut = [];
+    final result = sut.findFirstWhere((item) => item == 4);
+    expect(result, null);
   });
 }
