@@ -28,17 +28,4 @@ extension ListExtensions<T> on List<T> {
     }
     insert(oldIndex < newIndex ? newIndex - 1 : newIndex, removeAt(oldIndex));
   }
-
-  /// Extension method on List that returns either the first element matching
-  /// test or null if no elements match test.
-  T? findFirstWhere(bool Function(T item) test) {
-    T? result;
-    for (var item in this) {
-      if (test(item)) {
-        result = item;
-        break;
-      }
-    }
-    return result;
-  }
 }
