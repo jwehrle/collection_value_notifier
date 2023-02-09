@@ -181,9 +181,27 @@ void main() {
     expect(didChange, true);
   });
 
-  test('Reorder valid', () {
+  test('Reorder valid extreme increasing', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(0, 2);
+    expect(sut, [2, 3, 1]);
+  });
+
+  test('Reorder valid extreme decreasing', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(2, 0);
+    expect(sut, [3, 1, 2]);
+  });
+
+  test('Reorder valid, increasing by one', () {
     final List<int> sut = [1, 2, 3];
     sut.reorder(1, 0);
+    expect(sut, [2, 1, 3]);
+  });
+
+  test('Reorder valid, decreasing by one', () {
+    final List<int> sut = [1, 2, 3];
+    sut.reorder(0, 1);
     expect(sut, [2, 1, 3]);
   });
 
@@ -647,15 +665,54 @@ void main() {
       sut.dispose();
     });
 
-    test('reorder', () {
+    test('reorder, extreme increasing index', () {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       bool didChange = false;
       sut.addListener(() {
         didChange = true;
       });
-      sut.reorder(4, 2);
-      expect(sut.value, [0, 1, 4, 2, 3, 5]);
+      sut.reorder(0, 5);
+      expect(sut.value, [1, 2, 3, 4, 5, 0]);
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
+    });
+
+    test('reorder, extreme decreasing index', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.reorder(5, 0);
+      expect(sut.value, [5, 0, 1, 2, 3, 4]);
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
+    });
+
+    test('reorder, increasing index by one', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.reorder(2, 1);
+      expect(sut.value, [0, 2, 1, 3, 4, 5]);
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
+    });
+
+    test('reorder, decreasing index by one', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.reorder(1, 2);
+      expect(sut.value, [0, 2, 1, 3, 4, 5]);
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
       sut.dispose();
     });

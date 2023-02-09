@@ -26,6 +26,7 @@ extension ListExtensions<T> on List<T> {
     if (oldIndex == newIndex) {
       return;
     }
-    insert(oldIndex < newIndex ? newIndex - 1 : newIndex, removeAt(oldIndex));
+    final moving = removeAt(oldIndex);
+    insert(newIndex, moving);
   }
 }

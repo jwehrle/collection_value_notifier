@@ -478,6 +478,12 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     return _value.firstWhere(test, orElse: orElse);
   }
 
+  //todo test
+  /// The first element satisfying [test], or `null` if there are none.
+  T? firstWhereOrNull(bool Function(T element) test) {
+    return _value.firstWhereOrNull(test);
+  }
+
   /// Wrapper for List method [fold]
   /// Reduces a collection to a single value by iteratively combining each
   /// element of the collection with an existing value
