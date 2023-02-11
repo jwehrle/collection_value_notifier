@@ -106,6 +106,20 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     }, Priority.animation);
   }
 
+  /// Calls [action] then notifies listeners synchronously.
+  void syncNotifyBlock(void Function(List<T> list) action) {
+    action(value);
+    notifyListeners();
+  }
+
+  /// Calls [action] and if it completes successfully notifies listeners.
+  void asyncNotifyBlock(
+    Future Function(List<T> list) asyncAction, {
+    Function? onError,
+  }) {
+    asyncAction(value).then((value) => notifyListeners(), onError: onError);
+  }
+
   /// Wrapper for List getter [fist]
   /// Returns the first element.
   ///
@@ -113,6 +127,10 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// Otherwise returns the first element in the iteration order,
   /// equivalent to `this.elementAt(0)`.
   T get first => _value.first;
+
+  /// Wraps:
+  /// The first element, or `null` if the iterable is empty.
+  T? get firstOrNull => value.firstOrNull;
 
   /// Wrapper for List getter [last]
   /// Returns the last element.
@@ -124,6 +142,10 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// (for example a list can directly access the last element,
   /// without iterating through the previous ones).
   T get last => _value.last;
+
+  /// Wraps:
+  /// The last element, or `null` if the iterable is empty.
+  T? get lastOrNull => value.lastOrNull;
 
   /// Wrapper for List getter [length]
   /// Returns the number of elements in [this].
@@ -202,6 +224,13 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   ///
   /// Throws a [StateError] if `this` is empty or has more than one element.
   T get single => _value.single;
+
+  /// Wraps:
+  /// The single element of the iterable, or `null`.
+  ///
+  /// The value is `null` if the iterable is empty
+  /// or it contains more than one element.
+  T? get singleOrNull => value.singleOrNull;
 
   /// Wrapper for List operator [+]
   /// Returns the concatenation of this list and [other].
@@ -431,6 +460,13 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     return _value.expand(toElements);
   }
 
+  /// Wraps:
+  /// Expands each element and index to a number of elements in a new iterable.
+  Iterable<R> expandIndexed<R>(
+      Iterable<R> Function(int index, T element) expand) sync* {
+    value.expandIndexed(expand);
+  }
+
   /// Wrapper for List method [fillRange]
   /// Notifies listeners
   /// Overwrites a range of elements with [fillValue].
@@ -478,7 +514,14 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     return _value.firstWhere(test, orElse: orElse);
   }
 
-  //todo test
+  /// Wraps:
+  /// The first element whose value and index satisfies [test].
+  ///
+  /// Returns `null` if there are no element and index satisfying [test].
+  T? firstWhereIndexedOrNull(bool Function(int index, T element) test) {
+    return value.firstWhereIndexedOrNull(test);
+  }
+
   /// The first element satisfying [test], or `null` if there are none.
   T? firstWhereOrNull(bool Function(T element) test) {
     return _value.firstWhereOrNull(test);
@@ -508,6 +551,20 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// ```
   U fold<U>(U initialValue, U Function(U previousValue, T element) combine) {
     return _value.fold(initialValue, combine);
+  }
+
+  /// Wraps:
+  /// Combine the elements with a value and the current index.
+  ///
+  /// Calls [combine] for each element with the current index,
+  /// the result of the previous call, or [initialValue] for the first element,
+  /// and the current element.
+  ///
+  /// Returns the result of the last call to [combine],
+  /// or [initialValue] if there are no elements.
+  R foldIndexed<R>(
+      R initialValue, R Function(int index, R previous, T element) combine) {
+    return value.foldIndexed(initialValue, combine);
   }
 
   /// Wrapper for List method [followedBy]
@@ -543,6 +600,34 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     _value.forEach(action);
   }
 
+  /// Wraps:
+  /// Takes an action for each element.
+  ///
+  /// Calls [action] for each element along with the index in the
+  /// iteration order.
+  void forEachIndexed(void Function(int index, T element) action) {
+    value.forEachIndexed(action);
+  }
+
+  /// Wraps:
+  /// Takes an action for each element and index as long as desired.
+  ///
+  /// Calls [action] for each element along with the index in the
+  /// iteration order.
+  /// Stops iteration if [action] returns `false`.
+  void forEachIndexedWhile(bool Function(int index, T element) action) {
+    return value.forEachIndexedWhile(action);
+  }
+
+  /// Wraps:
+  /// Takes an action for each element as long as desired.
+  ///
+  /// Calls [action] for each element.
+  /// Stops iteration if [action] returns `false`.
+  void forEachWhile(bool Function(T element) action) {
+    return value.forEachWhile(action);
+  }
+
   /// Wrapper for List method [getRange]
   /// Creates an [Iterable] that iterates over a range of elements.
   ///
@@ -568,6 +653,37 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// ```
   Iterable<T> getRange(int start, int end) {
     return _value.getRange(start, end);
+  }
+
+  /// Wraps:
+  /// Groups elements by [keyOf] then folds the elements in each group.
+  ///
+  /// A key is found for each element using [keyOf].
+  /// Then the elements with the same key are all folded using [combine].
+  /// The first call to [combine] for a particular key receives [null] as
+  /// the previous value, the remaining ones receive the result of the previous call.
+  ///
+  /// Can be used to _group_ elements into arbitrary collections.
+  /// For example [groupSetsBy] could be written as:
+  /// ```dart
+  /// iterable.groupFoldBy(keyOf,
+  ///     (Set<T>? previous, T element) => (previous ?? <T>{})..add(element));
+  /// ````
+  Map<K, G> groupFoldBy<K, G>(
+      K Function(T element) keyOf, G Function(G? previous, T element) combine) {
+    return value.groupFoldBy<K, G>(keyOf, combine);
+  }
+
+  /// Wraps:
+  /// Groups elements into lists by [keyOf].
+  Map<K, List<T>> groupListsBy<K>(K Function(T element) keyOf) {
+    return value.groupListsBy<K>(keyOf);
+  }
+
+  /// Wraps:
+  /// Groups elements into sets by [keyOf].
+  Map<K, Set<T>> groupSetsBy<K>(K Function(T element) keyOf) {
+    return value.groupSetsBy<K>(keyOf);
   }
 
   /// Wrapper for List method [indexOf]
@@ -652,6 +768,19 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   void insertAll(int index, Iterable<T> iterable) {
     _value.insertAll(index, iterable);
     notifyListeners();
+  }
+
+  bool isSorted(Comparator<T> compare) {
+    return value.isSorted(compare);
+  }
+
+  bool isSortedBy<K extends Comparable<K>>(K Function(T element) keyOf) {
+    return value.isSortedBy(keyOf);
+  }
+
+  bool isSortedByCompare<K>(
+      K Function(T element) keyOf, Comparator<K> compare) {
+    return value.isSortedByCompare(keyOf, compare);
   }
 
   /// Wrapper for List method [join]
@@ -750,6 +879,20 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     return _value.lastWhere(test, orElse: orElse);
   }
 
+  /// Wraps:
+  /// The last element whose index and value satisfies [test].
+  ///
+  /// Returns `null` if no element and index satisfies [test].
+  T? lastWhereIndexedOrNull(bool Function(int index, T element) test) {
+    return value.lastWhereIndexedOrNull(test);
+  }
+
+  /// Wraps:
+  /// The last element satisfying [test], or `null` if there are none.
+  T? lastWhereOrNull(bool Function(T element) test) {
+    return value.lastWhereOrNull(test);
+  }
+
   /// Wrapper for List method [map]
   /// The current elements of this iterable modified by [toElement].
   ///
@@ -792,6 +935,24 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     return _value.map(toElement);
   }
 
+  /// Wraps:
+  /// Maps each element and its index to a new value.
+  Iterable<R> mapIndexed<R>(R Function(int index, T element) convert) sync* {
+    value.mapIndexed<R>(convert);
+  }
+
+  /// Wraps:
+  /// Whether no element satisfies [test].
+  ///
+  /// Returns true if no element satisfies [test],
+  /// and false if at least one does.
+  ///
+  /// Equivalent to `iterable.every((x) => !test(x))` or
+  /// `!iterable.any(test)`.
+  bool none(bool Function(T) test) {
+    return value.none(test);
+  }
+
   /// Wrapper for List method [reduce]
   /// Reduces a collection to a single value by iteratively combining elements
   /// of the collection using the provided function.
@@ -817,6 +978,21 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// ```
   T reduce(T Function(T value, T element) combine) {
     return _value.reduce(combine);
+  }
+
+  /// Wraps:
+  /// Combine the elements with each other and the current index.
+  ///
+  /// Calls [combine] for each element except the first.
+  /// The call passes the index of the current element, the result of the
+  /// previous call, or the first element for the first call, and
+  /// the current element.
+  ///
+  /// Returns the result of the last call, or the first element if
+  /// there is only one element.
+  /// There must be at least one element.
+  T reduceIndexed(T Function(int index, T previous, T element) combine) {
+    return value.reduceIndexed(combine);
   }
 
   /// Wrapper for List method [remove]
@@ -991,103 +1167,19 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     notifyListeners();
   }
 
-  /// Wrapper for List method [shuffle]
-  /// Notifies listeners
-  /// Shuffles the elements of this list randomly.
-  /// ```dart
-  /// final numbers = <int>[1, 2, 3, 4, 5];
-  /// numbers.shuffle();
-  /// print(numbers); // [1, 3, 4, 5, 2] OR some other random result.
-  /// ```
-  void shuffle([Random? random]) {
-    _value.shuffle(random);
-    notifyListeners();
-  }
-
-  /// Wrapper for List method [shuffleRange]
-  /// Notifies listeners
-  /// Shuffle a range of elements.
-  void shuffleRange(int start, int end, [Random? random]) {
-    _value.shuffleRange(start, end, random);
-    notifyListeners();
-  }
-
-  /// Wrapper for List method [singleWhere]
-  /// Returns the single element that satisfies [test].
+  /// Wraps:
+  /// Selects [count] elements at random from this iterable.
   ///
-  /// Checks elements to see if `test(element)` returns true.
-  /// If exactly one element satisfies [test], that element is returned.
-  /// If more than one matching element is found, throws [StateError].
-  /// If no matching element is found, returns the result of [orElse].
-  /// If [orElse] is omitted, it defaults to throwing a [StateError].
+  /// The returned list contains [count] different elements of the iterable.
+  /// If the iterable contains fewer that [count] elements,
+  /// the result will contain all of them, but will be shorter than [count].
+  /// If the same value occurs more than once in the iterable,
+  /// it can also occur more than once in the chosen elements.
   ///
-  /// Example:
-  /// ```dart
-  /// final numbers = <int>[2, 2, 10];
-  /// var result = numbers.singleWhere((element) => element > 5); // 10
-  /// ```
-  /// When no matching element is found, the result of calling [orElse] is
-  /// returned instead.
-  /// ```dart continued
-  /// result = numbers.singleWhere((element) => element == 1,
-  ///     orElse: () => -1); // -1
-  /// ```
-  /// There must not be more than one matching element.
-  /// ```dart continued
-  /// result = numbers.singleWhere((element) => element == 2); // Throws Error.
-  ///
-  T singleWhere(bool Function(T element) test, {T Function()? orElse}) {
-    return _value.singleWhere(test, orElse: orElse);
-  }
-
-  /// Wrapper for List method [skip]
-  /// Returns an [Iterable] that provides all but the first [count] elements.
-  ///
-  /// When the returned iterable is iterated, it starts iterating over `this`,
-  /// first skipping past the initial [count] elements.
-  /// If `this` has fewer than `count` elements, then the resulting Iterable is
-  /// empty.
-  /// After that, the remaining elements are iterated in the same order as
-  /// in this iterable.
-  ///
-  /// Some iterables may be able to find later elements without first iterating
-  /// through earlier elements, for example when iterating a [List].
-  /// Such iterables are allowed to ignore the initial skipped elements.
-  ///
-  /// Example:
-  /// ```dart
-  /// final numbers = <int>[1, 2, 3, 5, 6, 7];
-  /// final result = numbers.skip(4); // (6, 7)
-  /// final skipAll = numbers.skip(100); // () - no elements.
-  /// ```
-  ///
-  /// The [count] must not be negative.
-  Iterable<T> skip(int count) {
-    return _value.skip(count);
-  }
-
-  /// Wrapper for List method [skipWhile]
-  /// Returns an `Iterable` that skips leading elements while [test] is satisfied.
-  ///
-  /// The filtering happens lazily. Every new [Iterator] of the returned
-  /// iterable iterates over all elements of `this`.
-  ///
-  /// The returned iterable provides elements by iterating this iterable,
-  /// but skipping over all initial elements where `test(element)` returns
-  /// true. If all elements satisfy `test` the resulting iterable is empty,
-  /// otherwise it iterates the remaining elements in their original order,
-  /// starting with the first element for which `test(element)` returns `false`.
-  ///
-  /// Example:
-  /// ```dart
-  /// final numbers = <int>[1, 2, 3, 5, 6, 7];
-  /// var result = numbers.skipWhile((x) => x < 5); // (5, 6, 7)
-  /// result = numbers.skipWhile((x) => x != 3); // (3, 5, 6, 7)
-  /// result = numbers.skipWhile((x) => x != 4); // ()
-  /// result = numbers.skipWhile((x) => x.isOdd); // (2, 3, 5, 6, 7)
-  /// ```
-  Iterable<T> skipWhile(bool Function(T value) test) {
-    return _value.skipWhile(test);
+  /// Each element of the iterable has the same chance of being chosen.
+  /// The chosen elements are not in any specific order.
+  List<T> sample(int count, [Random? random]) {
+    return value.sample(count, random);
   }
 
   /// Wrapper for List method [setAll]
@@ -1148,6 +1240,139 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     notifyListeners();
   }
 
+  /// Wrapper for List method [shuffle]
+  /// Notifies listeners
+  /// Shuffles the elements of this list randomly.
+  /// ```dart
+  /// final numbers = <int>[1, 2, 3, 4, 5];
+  /// numbers.shuffle();
+  /// print(numbers); // [1, 3, 4, 5, 2] OR some other random result.
+  /// ```
+  void shuffle([Random? random]) {
+    _value.shuffle(random);
+    notifyListeners();
+  }
+
+  /// Wrapper for List method [shuffleRange]
+  /// Notifies listeners
+  /// Shuffle a range of elements.
+  void shuffleRange(int start, int end, [Random? random]) {
+    _value.shuffleRange(start, end, random);
+    notifyListeners();
+  }
+
+  /// Wrapper for List method [singleWhere]
+  /// Returns the single element that satisfies [test].
+  ///
+  /// Checks elements to see if `test(element)` returns true.
+  /// If exactly one element satisfies [test], that element is returned.
+  /// If more than one matching element is found, throws [StateError].
+  /// If no matching element is found, returns the result of [orElse].
+  /// If [orElse] is omitted, it defaults to throwing a [StateError].
+  ///
+  /// Example:
+  /// ```dart
+  /// final numbers = <int>[2, 2, 10];
+  /// var result = numbers.singleWhere((element) => element > 5); // 10
+  /// ```
+  /// When no matching element is found, the result of calling [orElse] is
+  /// returned instead.
+  /// ```dart continued
+  /// result = numbers.singleWhere((element) => element == 1,
+  ///     orElse: () => -1); // -1
+  /// ```
+  /// There must not be more than one matching element.
+  /// ```dart continued
+  /// result = numbers.singleWhere((element) => element == 2); // Throws Error.
+  ///
+  T singleWhere(bool Function(T element) test, {T Function()? orElse}) {
+    return _value.singleWhere(test, orElse: orElse);
+  }
+
+  /// Wraps:
+  /// The single element satisfying [test].
+  ///
+  /// Returns `null` if there are either none
+  /// or more than one element and index satisfying [test].
+  T? singleWhereIndexedOrNull(bool Function(int index, T element) test) {
+    return value.singleWhereIndexedOrNull(test);
+  }
+
+  /// Wraps:
+  /// The single element satisfying [test].
+  ///
+  /// Returns `null` if there are either no elements
+  /// or more than one element satisfying [test].
+  ///
+  /// **Notice**: This behavior differs from [Iterable.singleWhere]
+  /// which always throws if there are more than one match,
+  /// and only calls the `orElse` function on zero matches.
+  T? singleWhereOrNull(bool Function(T element) test) {
+    return value.singleWhereOrNull(test);
+  }
+
+  /// Wrapper for List method [skip]
+  /// Returns an [Iterable] that provides all but the first [count] elements.
+  ///
+  /// When the returned iterable is iterated, it starts iterating over `this`,
+  /// first skipping past the initial [count] elements.
+  /// If `this` has fewer than `count` elements, then the resulting Iterable is
+  /// empty.
+  /// After that, the remaining elements are iterated in the same order as
+  /// in this iterable.
+  ///
+  /// Some iterables may be able to find later elements without first iterating
+  /// through earlier elements, for example when iterating a [List].
+  /// Such iterables are allowed to ignore the initial skipped elements.
+  ///
+  /// Example:
+  /// ```dart
+  /// final numbers = <int>[1, 2, 3, 5, 6, 7];
+  /// final result = numbers.skip(4); // (6, 7)
+  /// final skipAll = numbers.skip(100); // () - no elements.
+  /// ```
+  ///
+  /// The [count] must not be negative.
+  Iterable<T> skip(int count) {
+    return _value.skip(count);
+  }
+
+  /// Wrapper for List method [skipWhile]
+  /// Returns an `Iterable` that skips leading elements while [test] is satisfied.
+  ///
+  /// The filtering happens lazily. Every new [Iterator] of the returned
+  /// iterable iterates over all elements of `this`.
+  ///
+  /// The returned iterable provides elements by iterating this iterable,
+  /// but skipping over all initial elements where `test(element)` returns
+  /// true. If all elements satisfy `test` the resulting iterable is empty,
+  /// otherwise it iterates the remaining elements in their original order,
+  /// starting with the first element for which `test(element)` returns `false`.
+  ///
+  /// Example:
+  /// ```dart
+  /// final numbers = <int>[1, 2, 3, 5, 6, 7];
+  /// var result = numbers.skipWhile((x) => x < 5); // (5, 6, 7)
+  /// result = numbers.skipWhile((x) => x != 3); // (3, 5, 6, 7)
+  /// result = numbers.skipWhile((x) => x != 4); // ()
+  /// result = numbers.skipWhile((x) => x.isOdd); // (2, 3, 5, 6, 7)
+  /// ```
+  Iterable<T> skipWhile(bool Function(T value) test) {
+    return _value.skipWhile(test);
+  }
+
+  /// Wraps:
+  /// Contiguous [slice]s of [this] with the given [length].
+  ///
+  /// Each slice is [length] elements long, except for the last one which may be
+  /// shorter if [this] contains too few elements. Each slice begins after the
+  /// last one ends. The [length] must be greater than zero.
+  ///
+  /// For example, `{1, 2, 3, 4, 5}.slices(2)` returns `([1, 2], [3, 4], [5])`.
+  Iterable<List<T>> slices(int length) sync* {
+    value.slices(length);
+  }
+
   /// Wrapper for List method [sort]
   /// Notifies listeners
   /// Sorts this list according to the order specified by the [compare] function.
@@ -1193,12 +1418,139 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
     notifyListeners();
   }
 
+  List<T> sorted(Comparator<T> compare) {
+    return value.sorted(compare);
+  }
+
+  List<T> sortedBy<K extends Comparable<K>>(K Function(T element) keyOf) {
+    return value.sortedBy(keyOf);
+  }
+
+  List<T> sortedByCompare<K>(
+      K Function(T element) keyOf, Comparator<K> compare) {
+    return value.sortedByCompare<K>(keyOf, compare);
+  }
+
   /// Wrapper for List method [sortRange]
   /// Notifies listeners
   /// Sort a range of elements by [compare].
   void sortRange(int start, int end, int Function(T a, T b) compare) {
     _value.sortRange(start, end, compare);
     notifyListeners();
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks before some elements.
+  ///
+  /// Each element is checked using [test] for whether it should start a new chunk.
+  /// If so, the elements since the previous chunk-starting element
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end.
+  ///
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 0, 2, 1, 5, 7, 6, 8, 9].splitAfter(isPrime);
+  /// print(parts); // ([1, 0, 2], [1, 5], [7], [6, 8, 9])
+  /// ```
+  Iterable<List<T>> splitAfter(bool Function(T element) test) {
+    return value.splitAfter(test);
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks after some elements and indices.
+  ///
+  /// Each element and index is checked using [test]
+  /// for whether it should end the current chunk.
+  /// If so, the elements since the previous chunk-ending element
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end, whether the last
+  /// element should be split after or not.
+  ///
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 0, 2, 1, 5, 7, 6, 8, 9].splitAfterIndexed((i, v) => i < v);
+  /// print(parts); // ([1, 0], [2, 1], [5, 7, 6], [8, 9])
+  /// ```
+  Iterable<List<T>> splitAfterIndexed(
+      bool Function(int index, T element) test) sync* {
+    value.splitAfterIndexed(test);
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks before some elements.
+  ///
+  /// Each element except the first is checked using [test]
+  /// for whether it should start a new chunk.
+  /// If so, the elements since the previous chunk-starting element
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end.
+  ///
+  /// Example:
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 2, 3, 4, 5, 6, 7, 8, 9].split(isPrime);
+  /// print(parts); // ([1], [2], [3, 4], [5, 6], [7, 8, 9])
+  /// ```
+  Iterable<List<T>> splitBefore(bool Function(T element) test) {
+    return value.splitBefore(test);
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks before some elements and indices.
+  ///
+  /// Each element and index except the first is checked using [test]
+  /// for whether it should start a new chunk.
+  /// If so, the elements since the previous chunk-starting element
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end.
+  ///
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 0, 2, 1, 5, 7, 6, 8, 9]
+  ///     .splitBeforeIndexed((i, v) => i < v);
+  /// print(parts); // ([1], [0, 2], [1, 5, 7], [6, 8, 9])
+  /// ```
+  Iterable<List<T>> splitBeforeIndexed(
+      bool Function(int index, T element) test) sync* {
+    value.splitBeforeIndexed(test);
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks between some elements.
+  ///
+  /// Each pair of adjacent elements are checked using [test]
+  /// for whether a chunk should end between them.
+  /// If so, the elements since the previous chunk-splitting elements
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end.
+  ///
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 0, 2, 1, 5, 7, 6, 8, 9].splitBetween((v1, v2) => v1 > v2);
+  /// print(parts); // ([1], [0, 2], [1, 5, 7], [6, 8, 9])
+  /// ```
+  Iterable<List<T>> splitBetween(bool Function(T first, T second) test) {
+    return value.splitBetween(test);
+  }
+
+  /// Wraps:
+  /// Splits the elements into chunks between some elements and indices.
+  ///
+  /// Each pair of adjacent elements and the index of the latter are
+  /// checked using [test] for whether a chunk should end between them.
+  /// If so, the elements since the previous chunk-splitting elements
+  /// are emitted as a list.
+  /// Any final elements are emitted at the end.
+  ///
+  /// Example:
+  /// ```dart
+  /// var parts = [1, 0, 2, 1, 5, 7, 6, 8, 9]
+  ///    .splitBetweenIndexed((i, v1, v2) => v1 > v2);
+  /// print(parts); // ([1], [0, 2], [1, 5, 7], [6, 8, 9])
+  /// ```
+  Iterable<List<T>> splitBetweenIndexed(
+      bool Function(int index, T first, T second) test) sync* {
+    value.splitBetweenIndexed(test);
   }
 
   /// Wrapper for List method [subList]
@@ -1301,6 +1653,24 @@ class ListNotifier<T> extends Notifier implements ListListenable<T> {
   /// ```
   Iterable<T> where(bool Function(T element) test) {
     return _value.where(test);
+  }
+
+  /// Wraps:
+  /// The elements whose value and index satisfies [test].
+  Iterable<T> whereIndexed(bool Function(int index, T element) test) sync* {
+    value.whereIndexed(test);
+  }
+
+  /// Wraps:
+  /// The elements that do not satisfy [test].
+  Iterable<T> whereNot(bool Function(T element) test) {
+    return value.whereNot(test);
+  }
+
+  /// Wraps:
+  /// The elements whose value and index do not satisfy [test].
+  Iterable<T> whereNotIndexed(bool Function(int index, T element) test) sync* {
+    value.whereNotIndexed(test);
   }
 
   /// Wrapper for List method [whereType]

@@ -1,12 +1,303 @@
+// Impossible to mock list with mockito or mocktail
+
+// import 'dart:developer' as dev;
+// import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection_value_notifier/list_extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
+// import 'package:mockito/annotations.dart';
+// import 'package:mockito/mockito.dart';
 
 import 'package:collection_value_notifier/collection_notifier.dart';
 
+// class Foo<T> extends List {
+//   // factory Foo.generate(int length, ) => List.generate(length, (index) => null);
+//
+//   factory Foo.none() => throw '';
+//   // factory Foo.generate(int length, T generator(int index),
+//   //     {bool growable = true}) {
+//   //   return Foo<T>();
+//   // }
+//
+//   int _length = 42;
+//
+//   @override
+//   var first;
+//
+//   @override
+//   var last;
+//
+//   @override
+//   int get length => _length;
+//
+//   @override
+//   List operator +(List<dynamic> other) {
+//     return [];
+//   }
+//
+//   @override
+//   operator [](int index) {
+//     return 42;
+//   }
+//
+//   @override
+//   void operator []=(int index, value) {}
+//
+//   @override
+//   void add(value) {}
+//
+//   @override
+//   void addAll(Iterable<dynamic> iterable) {}
+//
+//   @override
+//   bool any(bool Function(dynamic element) test) {
+//     return true;
+//   }
+//
+//   @override
+//   Map<int, dynamic> asMap() {
+//     return <int, dynamic>{};
+//   }
+//
+//   @override
+//   List<R> cast<R>() {
+//     return <R>[];
+//   }
+//
+//   @override
+//   void clear() {}
+//
+//   @override
+//   bool contains(Object? element) {
+//     return true;
+//   }
+//
+//   @override
+//   elementAt(int index) {
+//     return 42;
+//   }
+//
+//   @override
+//   bool every(bool Function(dynamic element) test) {
+//     return true;
+//   }
+//
+//   @override
+//   Iterable<T> expand<T>(Iterable<T> Function(dynamic element) toElements) {
+//     return [].expand<T>(toElements);
+//   }
+//
+//   @override
+//   void fillRange(int start, int end, [fillValue]) {}
+//
+//   @override
+//   firstWhere(bool Function(dynamic element) test, {Function()? orElse}) {
+//     return [].firstWhere(test, orElse: orElse);
+//   }
+//
+//   @override
+//   T fold<T>(
+//       T initialValue, T Function(T previousValue, dynamic element) combine) {
+//     return Object() as T; //[].fold<T>(initialValue, combine)
+//   }
+//
+//   @override
+//   Iterable followedBy(Iterable other) {
+//     return [];
+//   }
+//
+//   @override
+//   void forEach(void Function(dynamic element) action) {}
+//
+//   @override
+//   Iterable getRange(int start, int end) {
+//     return [];
+//   }
+//
+//   @override
+//   int indexOf(element, [int start = 0]) {
+//     return 42;
+//   }
+//
+//   @override
+//   int indexWhere(bool Function(dynamic element) test, [int start = 0]) {
+//     return 42;
+//   }
+//
+//   @override
+//   void insert(int index, element) {}
+//
+//   @override
+//   void insertAll(int index, Iterable iterable) {}
+//
+//   @override
+//   bool get isEmpty => false;
+//
+//   @override
+//   bool get isNotEmpty => true;
+//
+//   @override
+//   Iterator get iterator => [].iterator;
+//
+//   @override
+//   String join([String separator = ""]) {
+//     return '';
+//   }
+//
+//   @override
+//   int lastIndexOf(element, [int? start]) {
+//     return 42;
+//   }
+//
+//   @override
+//   int lastIndexWhere(bool Function(dynamic element) test, [int? start]) {
+//     return 42;
+//   }
+//
+//   @override
+//   lastWhere(bool Function(dynamic element) test, {Function()? orElse}) {
+//     return 42;
+//   }
+//
+//   @override
+//   Iterable<T> map<T>(T Function(dynamic e) toElement) {
+//     return [];
+//   }
+//
+//   @override
+//   reduce(Function(dynamic value, dynamic element) combine) {
+//     return 42;
+//   }
+//
+//   @override
+//   bool remove(Object? value) {
+//     return true;
+//   }
+//
+//   @override
+//   removeAt(int index) {
+//     return 42;
+//   }
+//
+//   @override
+//   removeLast() {
+//     return 42;
+//   }
+//
+//   @override
+//   void removeRange(int start, int end) {}
+//
+//   @override
+//   void removeWhere(bool Function(dynamic element) test) {}
+//
+//   @override
+//   void replaceRange(int start, int end, Iterable replacements) {}
+//
+//   @override
+//   void retainWhere(bool Function(dynamic element) test) {}
+//
+//   @override
+//   Iterable get reversed => [];
+//
+//   @override
+//   void setAll(int index, Iterable iterable) {}
+//
+//   @override
+//   void setRange(int start, int end, Iterable iterable, [int skipCount = 0]) {}
+//
+//   @override
+//   void shuffle([Random? random]) {}
+//
+//   @override
+//   get single => 1;
+//
+//   @override
+//   Iterable singleWhere(bool Function(dynamic element) test,
+//       {Function()? orElse}) {
+//     return [];
+//   }
+//
+//   @override
+//   Iterable skip(int count) {
+//     return [];
+//   }
+//
+//   @override
+//   Iterable skipWhile(bool Function(dynamic value) test) {
+//     return [];
+//   }
+//
+//   @override
+//   void sort([int Function(dynamic a, dynamic b)? compare]) {}
+//
+//   @override
+//   List sublist(int start, [int? end]) {
+//     return [];
+//   }
+//
+//   @override
+//   Iterable take(int count) {
+//     return [];
+//   }
+//
+//   @override
+//   Iterable takeWhile(bool Function(dynamic value) test) {
+//     return [];
+//   }
+//
+//   @override
+//   List toList({bool growable = true}) {
+//     return [];
+//   }
+//
+//   @override
+//   Set toSet() {
+//     return {};
+//   }
+//
+//   @override
+//   Iterable where(bool Function(dynamic element) test) {
+//     return [];
+//   }
+//
+//   @override
+//   Iterable<T> whereType<T>() {
+//     return <T>[];
+//   }
+//
+//   @override
+//   set length(int newLength) {
+//     _length = newLength;
+//   }
+// }
+
+// class MockFoo<T> extends Mock implements Foo<T> {
+//   @override
+//   T fold<T>(
+//       T initialValue, T Function(T previousValue, dynamic element) combine) {
+//     return Object() as T; //[].fold<T>(initialValue, combine)
+//   }
+// }
+
+// @GenerateMocks([
+//   Foo
+// ], customMocks: [
+//   MockSpec<Foo>(
+//     as: #MockIterableRelaxed, returnNullOnMissingStub: true,
+//     // onMissingStub: OnMissingStub.returnDefault,
+//     // unsupportedMembers: {#fold},
+//   )
+// ])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // late MockList<int> list;
+
+  // setUp(() {
+  //   // Create mock object.
+  //   // list = MockList(); //Foo<int>.generate(42, (index) => 42);
+  // });
 
   test('ListNotifier shallow should notify', () {
     final ListNotifier<String> listNotifier =
@@ -243,10 +534,12 @@ void main() {
 
   group('Collection wrapper function tests', () {
     test('first', () {
+      // when(list.first).thenReturn(0);
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
       int result = sut.first;
       expect(result, 0);
+      // verify(list.first).called(1);
       sut.dispose();
     });
 
@@ -448,6 +741,22 @@ void main() {
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.firstWhere((e) => e > 1, orElse: () => -1);
       expect(result, 2);
+      sut.dispose();
+    });
+
+    test('firstWhereOrNull, contains', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.firstWhereOrNull((element) => element > 3);
+      expect(result, 4);
+      sut.dispose();
+    });
+
+    test('firstWhereOrNull, does not contain', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.firstWhereOrNull((element) => element > 5);
+      expect(result, null);
       sut.dispose();
     });
 
