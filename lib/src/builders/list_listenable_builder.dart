@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collection_value_notifier/collection_notifier.dart';
+import '../notifiers/list_notifier.dart';
 
 typedef ListValueWidgetBuilder<T> = Widget Function(
     BuildContext context, List<T> value, Widget? child);

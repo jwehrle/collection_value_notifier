@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collection_value_notifier/collection_notifier.dart';
+import '../notifiers/set_notifier.dart';
 
 typedef SetWidgetBuilder<T> = Widget Function(
     BuildContext context, Set<T> value, Widget? child);

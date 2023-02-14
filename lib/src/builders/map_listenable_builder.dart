@@ -1,5 +1,5 @@
+import 'package:collection_value_notifier/src/notifiers/map_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:collection_value_notifier/collection_notifier.dart';
 
 typedef MapValueWidgetBuilder<K, V> = Widget Function(
     BuildContext context, Map<K, V> value, Widget? child);
