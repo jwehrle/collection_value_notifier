@@ -190,8 +190,8 @@ class ListNotifier<T> extends CollectionNotifier
 
   @override
   Iterable<R> expandIndexed<R>(
-      Iterable<R> Function(int index, T element) expand) sync* {
-    _value.expandIndexed(expand);
+      Iterable<R> Function(int index, T element) expand) {
+    return _value.expandIndexed(expand);
   }
 
   @override
@@ -346,8 +346,8 @@ class ListNotifier<T> extends CollectionNotifier
   }
 
   @override
-  Iterable<R> mapIndexed<R>(R Function(int index, T element) convert) sync* {
-    _value.mapIndexed<R>(convert);
+  Iterable<R> mapIndexed<R>(R Function(int index, T element) convert) {
+    return _value.mapIndexed<R>(convert);
   }
 
   @override
@@ -479,8 +479,8 @@ class ListNotifier<T> extends CollectionNotifier
   }
 
   @override
-  Iterable<List<T>> slices(int length) sync* {
-    _value.slices(length);
+  Iterable<List<T>> slices(int length) {
+    return _value.slices(length);
   }
 
   @override
@@ -524,8 +524,8 @@ class ListNotifier<T> extends CollectionNotifier
 
   @override
   Iterable<List<T>> splitAfterIndexed(
-      bool Function(int index, T element) test) sync* {
-    _value.splitAfterIndexed(test);
+      bool Function(int index, T element) test) {
+    return _value.splitAfterIndexed(test);
   }
 
   @override
@@ -535,8 +535,8 @@ class ListNotifier<T> extends CollectionNotifier
 
   @override
   Iterable<List<T>> splitBeforeIndexed(
-      bool Function(int index, T element) test) sync* {
-    _value.splitBeforeIndexed(test);
+      bool Function(int index, T element) test) {
+    return _value.splitBeforeIndexed(test);
   }
 
   @override
@@ -546,8 +546,8 @@ class ListNotifier<T> extends CollectionNotifier
 
   @override
   Iterable<List<T>> splitBetweenIndexed(
-      bool Function(int index, T first, T second) test) sync* {
-    _value.splitBetweenIndexed(test);
+      bool Function(int index, T first, T second) test) {
+    return _value.splitBetweenIndexed(test);
   }
 
   @override
@@ -592,8 +592,8 @@ class ListNotifier<T> extends CollectionNotifier
   }
 
   @override
-  Iterable<T> whereIndexed(bool Function(int index, T element) test) sync* {
-    _value.whereIndexed(test);
+  Iterable<T> whereIndexed(bool Function(int index, T element) test) {
+    return _value.whereIndexed(test);
   }
 
   @override
@@ -602,8 +602,8 @@ class ListNotifier<T> extends CollectionNotifier
   }
 
   @override
-  Iterable<T> whereNotIndexed(bool Function(int index, T element) test) sync* {
-    _value.whereNotIndexed(test);
+  Iterable<T> whereNotIndexed(bool Function(int index, T element) test) {
+    return _value.whereNotIndexed(test);
   }
 
   @override

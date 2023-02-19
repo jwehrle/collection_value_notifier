@@ -2,6 +2,7 @@
 
 // import 'dart:developer' as dev;
 // import 'dart:math';
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:collection_value_notifier/src/extensions.dart';
@@ -41,133 +42,46 @@ void main() {
       ];
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
     });
-  });
 
-  group('SetNotifier tests', () {
-    test('SetNotifier shallow should notify', () {
-      final SetNotifier<String> setNotifier =
-          SetNotifier<String>({'a', 'b', 'c'});
+    test('collection setter', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
       bool didChange = false;
-      setNotifier.addListener(() {
+      sut.addListener(() {
         didChange = true;
       });
-      setNotifier.value = {'z', 'b', 'c'};
+      sut.collection = [4, 5, 6];
+      expect(sut.value, [4, 5, 6]);
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
     });
 
-    test('SetNotifier deep should notify', () {
-      final SetNotifier<Map> setNotifier = SetNotifier<Map>({
-        {'a': true},
-        {'b': true},
-        {'c': true}
-      });
+    test('first setter', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
       bool didChange = false;
-      setNotifier.addListener(() {
+      sut.addListener(() {
         didChange = true;
       });
-      setNotifier.value = {
-        {'a': true},
-        {'b': false},
-        {'c': true}
-      };
+      sut.first = 10;
+      expect(sut.value, [10, 1, 2]);
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
     });
-  });
 
-  group('MapNotifier test', () {
-    test('MapNotifier shallow should notify', () {
-      final MapNotifier<String, bool> mapNotifier =
-          MapNotifier<String, bool>({'a': true, 'b': true, 'c': true});
+    test('last setter', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
       bool didChange = false;
-      mapNotifier.addListener(() {
+      sut.addListener(() {
         didChange = true;
       });
-      mapNotifier.value = {'a': false, 'b': true, 'c': true};
+      sut.last = 10;
+      expect(sut.value, [0, 1, 10]);
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
     });
 
-    test('MapNotifier deep should notify', () {
-      final MapNotifier<String, Map> mapNotifier = MapNotifier<String, Map>({
-        '0': {'a': true},
-        '1': {'b': true},
-        '2': {'c': true}
-      });
-      bool didChange = false;
-      mapNotifier.addListener(() {
-        didChange = true;
-      });
-      mapNotifier.value = {
-        '0': {'a': true},
-        '1': {'b': true},
-        '2': {'c': false}
-      };
-      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
-    });
-  });
-
-  group('Reorder extension', () {
-    test('Reorder valid extreme increasing', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(0, 2);
-      expect(sut, [2, 3, 1]);
-    });
-
-    test('Reorder valid extreme decreasing', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(2, 0);
-      expect(sut, [3, 1, 2]);
-    });
-
-    test('Reorder valid, increasing by one', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(1, 0);
-      expect(sut, [2, 1, 3]);
-    });
-
-    test('Reorder valid, decreasing by one', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(0, 1);
-      expect(sut, [2, 1, 3]);
-    });
-
-    test('Reorder invalid: length < 2', () {
-      final List<int> sut = [1];
-      sut.reorder(1, 0);
-      expect(sut, [1]);
-    });
-
-    test('Reorder invalid: oldIndex too great', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(3, 0);
-      expect(sut, [1, 2, 3]);
-    });
-
-    test('Reorder invalid: newIndex too great', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(1, 3);
-      expect(sut, [1, 2, 3]);
-    });
-
-    test('Reorder invalid: oldIndex less than zero', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(-1, 0);
-      expect(sut, [1, 2, 3]);
-    });
-
-    test('Reorder invalid: newIndex less than zero', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(1, -1);
-      expect(sut, [1, 2, 3]);
-    });
-
-    test('Reorder invalid: oldIndex == newIndex', () {
-      final List<int> sut = [1, 2, 3];
-      sut.reorder(1, 1);
-      expect(sut, [1, 2, 3]);
-    });
-  });
-
-  group('Collection wrapper function tests', () {
     test('first', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
@@ -293,8 +207,23 @@ void main() {
     test('any', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.any((element) => element.isOdd);
+      final result = sut.any((e) => e.isOdd);
       expect(result, true);
+      sut.dispose();
+    });
+
+    test('asyncEditBlock', () async {
+      ListNotifier<int> sut = ListNotifier<int>([0, 1, 2]);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.asyncEditBlock((list) async {
+        return [3, 4, 5];
+      });
+      await Future.delayed(Duration(seconds: 1));
+      expect(didChange, true);
+      expect(sut.value, [3, 4, 5]);
       sut.dispose();
     });
 
@@ -327,6 +256,21 @@ void main() {
       sut.dispose();
     });
 
+    test('completerEditBlock', () async {
+      ListNotifier<int> sut = ListNotifier<int>([0, 1, 2]);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      Completer<List<int>> completer = Completer();
+      sut.completerEditBlock(completer);
+      completer.complete([3, 4, 5]);
+      await Future.delayed(Duration(seconds: 1));
+      expect(didChange, true);
+      expect(sut.value, [3, 4, 5]);
+      sut.dispose();
+    });
+
     test('contains', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
@@ -338,7 +282,7 @@ void main() {
     test('every', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.every((element) => element.isEven);
+      final result = sut.every((e) => e.isEven);
       expect(result, false);
       sut.dispose();
     });
@@ -346,13 +290,16 @@ void main() {
     test('expand', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.expand((element) => [element + 1, element + 2]);
-      expect(result.elementAt(0), 1);
-      expect(result.elementAt(1), 2);
-      expect(result.elementAt(2), 2);
-      expect(result.elementAt(3), 3);
-      expect(result.elementAt(4), 3);
-      expect(result.elementAt(5), 4);
+      final result = sut.expand((e) => [e + 1, e + 2]);
+      expect(result.toList(), <int>[1, 2, 2, 3, 3, 4]);
+      sut.dispose();
+    });
+
+    test('expandIndexed', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.expandIndexed((i, e) => [e + i, e + i]);
+      expect(result.toList(), <int>[0, 0, 2, 2, 4, 4]);
       sut.dispose();
     });
 
@@ -377,10 +324,26 @@ void main() {
       sut.dispose();
     });
 
+    test('firstWhereIndexedOrNull, contains', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.firstWhereIndexedOrNull((i, e) => (i + e) > 3);
+      expect(result, 2);
+      sut.dispose();
+    });
+
+    test('firstWhereIndexedOrNull, does not contain', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.firstWhereIndexedOrNull((i, e) => (i + e) > 10);
+      expect(result, null);
+      sut.dispose();
+    });
+
     test('firstWhereOrNull, contains', () {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.firstWhereOrNull((element) => element > 3);
+      final result = sut.firstWhereOrNull((e) => e > 3);
       expect(result, 4);
       sut.dispose();
     });
@@ -388,7 +351,7 @@ void main() {
     test('firstWhereOrNull, does not contain', () {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.firstWhereOrNull((element) => element > 5);
+      final result = sut.firstWhereOrNull((e) => e > 5);
       expect(result, null);
       sut.dispose();
     });
@@ -401,17 +364,20 @@ void main() {
       sut.dispose();
     });
 
+    test('foldIndexed', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.foldIndexed<int>(10, (i, p, e) => p + e + i);
+      expect(result, 16);
+      sut.dispose();
+    });
+
     test('followedBy', () {
       List<int> list = [0, 1, 2];
       List<int> other = [3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.followedBy(other);
-      expect(result.elementAt(0), 0);
-      expect(result.elementAt(1), 1);
-      expect(result.elementAt(2), 2);
-      expect(result.elementAt(3), 3);
-      expect(result.elementAt(4), 4);
-      expect(result.elementAt(5), 5);
+      expect(result.toList(), <int>[0, 1, 2, 3, 4, 5]);
       sut.dispose();
     });
 
@@ -438,14 +404,79 @@ void main() {
       sut.dispose();
     });
 
+    test('forEachIndexed', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      int sum = 0;
+      sut.forEachIndexed((i, e) {
+        sum += i + e;
+      });
+      expect(sum, 30);
+      sut.dispose();
+    });
+
+    test('forEachIndexedWhile', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      int callCount = 0;
+      sut.forEachIndexedWhile((i, e) {
+        callCount++;
+        return e < 3 && i < 2;
+      });
+      expect(callCount, 3);
+      sut.dispose();
+    });
+
+    test('forEachWhile', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      int callCount = 0;
+      sut.forEachWhile((e) {
+        callCount++;
+        return e < 3;
+      });
+      expect(callCount, 4);
+      sut.dispose();
+    });
+
     test('getRange', () {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.getRange(1, 3);
       expect(result, TypeMatcher<Iterable<int>>());
-      expect(result.length, 2);
-      expect(result.elementAt(0), 1);
-      expect(result.elementAt(1), 2);
+      expect(result.toList(), <int>[1, 2]);
+      sut.dispose();
+    });
+
+    test('groupFoldBy', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.groupFoldBy((e) => e.isEven, (int? previous, int e) {
+        return (previous ?? 0) + e;
+      });
+      expect(result, {true: 6, false: 9});
+      sut.dispose();
+    });
+
+    test('groupListsBy', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.groupListsBy((e) => e.isEven);
+      expect(result, {
+        true: <int>[0, 2, 4],
+        false: <int>[1, 3, 5]
+      });
+      sut.dispose();
+    });
+
+    test('groupSetsBy', () {
+      List<int> list = [0, 1, 2, 3, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.groupSetsBy((e) => e.isEven);
+      expect(result, {
+        true: <int>{0, 2, 4},
+        false: <int>{1, 3, 5}
+      });
       sut.dispose();
     });
 
@@ -491,6 +522,31 @@ void main() {
       sut.dispose();
     });
 
+    test('isSorted', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.isSorted((a, b) => a.compareTo(b));
+      expect(result, true);
+      sut.dispose();
+    });
+
+    test('isSortedBy', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.isSortedBy<num>((e) => e);
+      expect(result, true);
+      sut.dispose();
+    });
+
+    test('isSortedBy', () {
+      List<int> list = [0, 1, 2];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result =
+          sut.isSortedByCompare((e) => e, (int a, int b) => a.compareTo(b));
+      expect(result, true);
+      sut.dispose();
+    });
+
     test('join', () {
       List<int> list = [0, 1, 2];
       ListNotifier<int> sut = ListNotifier<int>(list);
@@ -523,19 +579,89 @@ void main() {
       sut.dispose();
     });
 
+    test('lastWhereIndexedOrNull present', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.lastWhereIndexedOrNull((i, e) => i > 1 && e < 4);
+      expect(result, 2);
+      sut.dispose();
+    });
+
+    test('lastWhereIndexedOrNull not present', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.lastWhereIndexedOrNull((i, e) => i > 4 && e < 2);
+      expect(result, null);
+      sut.dispose();
+    });
+
+    test('lastWhereOrNull present', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.lastWhereOrNull((e) => e < 4);
+      expect(result, 2);
+      sut.dispose();
+    });
+
+    test('lastWhereOrNull not present', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.lastWhereOrNull((e) => e > 45);
+      expect(result, null);
+      sut.dispose();
+    });
+
     test('map', () {
       List<int> list = [0, 1, 2, 2, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.map((e) => <int>{e});
-      expect(result, TypeMatcher<Iterable<Set<int>>>());
+      expect(result, [
+        {0},
+        {1},
+        {2},
+        {2},
+        {4},
+        {5}
+      ]);
+      sut.dispose();
+    });
+
+    test('mapIndexed', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.mapIndexed((i, e) => <int>{e * i});
+      expect(result, [
+        {0},
+        {1},
+        {4},
+        {6},
+        {16},
+        {25}
+      ]);
+      sut.dispose();
+    });
+
+    test('none', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.none((p0) => p0.isNegative);
+      expect(result, true);
       sut.dispose();
     });
 
     test('reduce', () {
       List<int> list = [0, 1, 2, 2, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
-      final result = sut.reduce((value, element) => value += element);
+      final result = sut.reduce((value, e) => value += e);
       expect(result, 14);
+      sut.dispose();
+    });
+
+    test('reduceIndexed', () {
+      List<int> list = [0, 1, 2, 2, 4, 5];
+      ListNotifier<int> sut = ListNotifier<int>(list);
+      final result = sut.reduceIndexed((i, previous, e) => previous += (e * i));
+      expect(result, 52);
       sut.dispose();
     });
 
@@ -709,16 +835,51 @@ void main() {
       sut.dispose();
     });
 
+    test('singleWhereIndexedOrNull present', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.singleWhereIndexedOrNull((i, e) => e.isOdd && i > 7);
+      expect(result, 9);
+      sut.dispose();
+    });
+
+    test('singleWhereIndexedOrNull too many', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.singleWhereIndexedOrNull((i, e) => e.isOdd && i > 3);
+      expect(result, null);
+      sut.dispose();
+    });
+
+    test('singleWhereOrNull too many', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.singleWhereOrNull((e) => e.isOdd);
+      expect(result, null);
+      sut.dispose();
+    });
+
+    test('singleWhereOrNull present', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.singleWhereOrNull((e) => e.isOdd && e > 8);
+      expect(result, 9);
+      sut.dispose();
+    });
+
+    test('singleWhereOrNull too many', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.singleWhereOrNull((e) => e.isOdd);
+      expect(result, null);
+      sut.dispose();
+    });
+
     test('skip', () {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.skip(2);
-      expect(result, TypeMatcher<Iterable<int>>());
-      expect(result.length, 4);
-      expect(result.elementAt(0), 2);
-      expect(result.elementAt(1), 3);
-      expect(result.elementAt(2), 4);
-      expect(result.elementAt(3), 5);
+      expect(result.toList(), <int>[2, 3, 4, 5]);
       sut.dispose();
     });
 
@@ -726,12 +887,7 @@ void main() {
       List<int> list = [0, 1, 2, 3, 4, 5];
       ListNotifier<int> sut = ListNotifier<int>(list);
       final result = sut.skipWhile((e) => e < 2);
-      expect(result, TypeMatcher<Iterable<int>>());
-      expect(result.length, 4);
-      expect(result.elementAt(0), 2);
-      expect(result.elementAt(1), 3);
-      expect(result.elementAt(2), 4);
-      expect(result.elementAt(3), 5);
+      expect(result.toList(), <int>[2, 3, 4, 5]);
       sut.dispose();
     });
 
@@ -758,6 +914,20 @@ void main() {
       sut.setRange(1, 3, [5, 6, 7, 8, 9], 3);
       expect(sut.value, [1, 8, 9, 4]);
       Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
+    });
+
+    test('slices', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.slices(2);
+      expect(result, [
+        [1, 0],
+        [2, 1],
+        [5, 7],
+        [6, 8],
+        [9]
+      ]);
       sut.dispose();
     });
 
@@ -811,6 +981,71 @@ void main() {
       sut.dispose();
     });
 
+    test('sortedByCompare', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result =
+          sut.sortedByCompare((e) => e * 2, (int a, int b) => a.compareTo(b));
+      expect(result, [0, 1, 1, 2, 5, 6, 7, 8, 9]);
+      sut.dispose();
+    });
+
+    test('splitAfter', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.splitAfter((a) => a.isOdd);
+      expect(result, [
+        [1],
+        [0, 2, 1],
+        [5],
+        [7],
+        [6, 8, 9]
+      ]);
+      sut.dispose();
+    });
+
+    test('splitBeforeIndexed', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.splitBetween((i, e) => i < e);
+      expect(result, [
+        [1, 0],
+        [2, 1],
+        [5],
+        [7, 6],
+        [8],
+        [9]
+      ]);
+      sut.dispose();
+    });
+
+    test('splitBetween', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.splitBetween((a, b) => a > b);
+      expect(result, [
+        [1],
+        [0, 2],
+        [1, 5, 7],
+        [6, 8, 9]
+      ]);
+      sut.dispose();
+    });
+
+    test('splitBetweenIndexed', () {
+      List<int> list1 = [1, 0, 2, 1, 5, 7, 6, 8, 9];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.splitBeforeIndexed((i, e) => i < e);
+      expect(result, [
+        [1, 0, 2, 1],
+        [5],
+        [7, 6],
+        [8],
+        [9]
+      ]);
+      sut.dispose();
+    });
+
     test('sublist', () {
       List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
       ListNotifier<int> sut = ListNotifier<int>(list1);
@@ -818,51 +1053,214 @@ void main() {
       expect(result, [2, 3, 4, 0]);
       sut.dispose();
     });
-  });
 
-  test('swap', () {
-    List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
-    ListNotifier<int> sut = ListNotifier<int>(list1);
-    bool didChange = false;
-    sut.addListener(() {
-      didChange = true;
+    test('swap', () {
+      List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.swap(1, 5);
+      expect(sut.value, [10, 7, 3, 4, 0, 2, -5]);
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
     });
-    sut.swap(1, 5);
-    expect(sut.value, [10, 7, 3, 4, 0, 2, -5]);
-    Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
-    sut.dispose();
+
+    test('syncEditBlock', () {
+      List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      bool didChange = false;
+      sut.addListener(() {
+        didChange = true;
+      });
+      sut.syncEditBlock((list) {
+        return list + [3, 4, 5];
+      });
+      expect(sut.value, [10, 2, 3, 4, 0, 7, -5, 3, 4, 5]);
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+      sut.dispose();
+    });
+
+    test('take', () {
+      List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.take(4);
+      expect(result, [10, 2, 3, 4]);
+      sut.dispose();
+    });
+
+    test('takeWhile', () {
+      List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.takeWhile((e) => e.isEven);
+      expect(result, [10, 2]);
+      sut.dispose();
+    });
+
+    test('where', () {
+      List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.where((e) => e.isEven);
+      expect(result, [10, 2, 4, 0]);
+      sut.dispose();
+    });
+
+    test('whereIndexed', () {
+      List<int> list1 = [0, 1, 2, 3, 4, 5, 6];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.whereIndexed((i, e) => i.isEven || e > 2);
+      expect(result, [0, 2, 3, 4, 5, 6]);
+      sut.dispose();
+    });
+
+    test('whereNot', () {
+      List<int> list1 = [0, 1, 2, 3, 4, 5, 6];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.whereNot((e) => e > 2);
+      expect(result, [0, 1, 2]);
+      sut.dispose();
+    });
+
+    test('whereNotIndexed', () {
+      List<int> list1 = [0, 1, 2, 3, 4, 5, 6];
+      ListNotifier<int> sut = ListNotifier<int>(list1);
+      final result = sut.whereNotIndexed((i, e) => i.isEven || e > 2);
+      expect(result, [1]);
+      sut.dispose();
+    });
+
+    test('whereType', () {
+      List<dynamic> list1 = ['ten', 2, 3, VoidCallback, 0, null, -5];
+      ListNotifier<dynamic> sut = ListNotifier<dynamic>(list1);
+      final result = sut.whereType<int>();
+      expect(result, TypeMatcher<Iterable<int>>());
+      expect(result, [2, 3, 0, -5]);
+      sut.dispose();
+    });
   });
 
-  test('take', () {
-    List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
-    ListNotifier<int> sut = ListNotifier<int>(list1);
-    final result = sut.take(4);
-    expect(result, [10, 2, 3, 4]);
-    sut.dispose();
+  group('SetNotifier tests', () {
+    test('SetNotifier shallow should notify', () {
+      final SetNotifier<String> setNotifier =
+          SetNotifier<String>({'a', 'b', 'c'});
+      bool didChange = false;
+      setNotifier.addListener(() {
+        didChange = true;
+      });
+      setNotifier.value = {'z', 'b', 'c'};
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+    });
+
+    test('SetNotifier deep should notify', () {
+      final SetNotifier<Map> setNotifier = SetNotifier<Map>({
+        {'a': true},
+        {'b': true},
+        {'c': true}
+      });
+      bool didChange = false;
+      setNotifier.addListener(() {
+        didChange = true;
+      });
+      setNotifier.value = {
+        {'a': true},
+        {'b': false},
+        {'c': true}
+      };
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+    });
   });
 
-  test('takeWhile', () {
-    List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
-    ListNotifier<int> sut = ListNotifier<int>(list1);
-    final result = sut.takeWhile((e) => e.isEven);
-    expect(result, [10, 2]);
-    sut.dispose();
+  group('MapNotifier test', () {
+    test('MapNotifier shallow should notify', () {
+      final MapNotifier<String, bool> mapNotifier =
+          MapNotifier<String, bool>({'a': true, 'b': true, 'c': true});
+      bool didChange = false;
+      mapNotifier.addListener(() {
+        didChange = true;
+      });
+      mapNotifier.value = {'a': false, 'b': true, 'c': true};
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+    });
+
+    test('MapNotifier deep should notify', () {
+      final MapNotifier<String, Map> mapNotifier = MapNotifier<String, Map>({
+        '0': {'a': true},
+        '1': {'b': true},
+        '2': {'c': true}
+      });
+      bool didChange = false;
+      mapNotifier.addListener(() {
+        didChange = true;
+      });
+      mapNotifier.value = {
+        '0': {'a': true},
+        '1': {'b': true},
+        '2': {'c': false}
+      };
+      Future.delayed(Duration(seconds: 1), () => expect(didChange, true));
+    });
   });
 
-  test('where', () {
-    List<int> list1 = [10, 2, 3, 4, 0, 7, -5];
-    ListNotifier<int> sut = ListNotifier<int>(list1);
-    final result = sut.where((e) => e.isEven);
-    expect(result, [10, 2, 4, 0]);
-    sut.dispose();
-  });
+  group('List extension tests', () {
+    test('Reorder valid extreme increasing', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(0, 2);
+      expect(sut, [2, 3, 1]);
+    });
 
-  test('where', () {
-    List<dynamic> list1 = ['ten', 2, 3, VoidCallback, 0, null, -5];
-    ListNotifier<dynamic> sut = ListNotifier<dynamic>(list1);
-    final result = sut.whereType<int>();
-    expect(result, TypeMatcher<Iterable<int>>());
-    expect(result, [2, 3, 0, -5]);
-    sut.dispose();
+    test('Reorder valid extreme decreasing', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(2, 0);
+      expect(sut, [3, 1, 2]);
+    });
+
+    test('Reorder valid, increasing by one', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(1, 0);
+      expect(sut, [2, 1, 3]);
+    });
+
+    test('Reorder valid, decreasing by one', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(0, 1);
+      expect(sut, [2, 1, 3]);
+    });
+
+    test('Reorder invalid: length < 2', () {
+      final List<int> sut = [1];
+      sut.reorder(1, 0);
+      expect(sut, [1]);
+    });
+
+    test('Reorder invalid: oldIndex too great', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(3, 0);
+      expect(sut, [1, 2, 3]);
+    });
+
+    test('Reorder invalid: newIndex too great', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(1, 3);
+      expect(sut, [1, 2, 3]);
+    });
+
+    test('Reorder invalid: oldIndex less than zero', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(-1, 0);
+      expect(sut, [1, 2, 3]);
+    });
+
+    test('Reorder invalid: newIndex less than zero', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(1, -1);
+      expect(sut, [1, 2, 3]);
+    });
+
+    test('Reorder invalid: oldIndex == newIndex', () {
+      final List<int> sut = [1, 2, 3];
+      sut.reorder(1, 1);
+      expect(sut, [1, 2, 3]);
+    });
   });
 }
