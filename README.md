@@ -28,7 +28,7 @@ Use this package in your Flutter app to:
 
     // Builder
     ListListenableBuilder<int>(
-      valueListenable: listListenable,
+      valueListenable: listNotifier,
       builder: (context, list, _) {
         < do something with list >
       },
