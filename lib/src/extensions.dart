@@ -1,5 +1,6 @@
 import 'dart:math';
 
+/// Local, custom extension on List.
 extension ListExtensions<T> on List<T> {
   /// Extension method on List that reorders one element of a list.
   /// [oldIndex] is the current index of the element to be moved.
@@ -9,6 +10,17 @@ extension ListExtensions<T> on List<T> {
   ///    oldIndex or newIndex are out of bounds,
   ///    oldIndex equals newIndex,
   /// this method returns without making any changes.
+  ///
+  /// If using with Flutter ReorderableListView make sure decrement [newIndex] when
+  /// it is greater than [oldIndex] as shown in documentation for
+  /// ReorderableListView.
+  /// {https://api.flutter.dev/flutter/material/ReorderableListView-class.html}
+  ///
+  /// Example:
+  ///   reorder(
+  ///       oldIndex,
+  ///       newIndex > oldIndex ? newIndex - 1 : newIndex,
+  ///     );
   void reorder(int oldIndex, int newIndex) {
     if (length < 2) {
       return;
@@ -33,6 +45,8 @@ extension ListExtensions<T> on List<T> {
   }
 }
 
+/// Abstract class for extensions on Iterable found in collection package.
+/// Extending this class provides the expected signatures and documentation.
 abstract class ExtendedIterable<T> {
   /// The first element, or `null` if the iterable is empty.
   T? get firstOrNull;

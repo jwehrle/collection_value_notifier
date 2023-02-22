@@ -5,6 +5,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:collection/collection.dart';
 import 'collection_notifier.dart';
 
+/// A basic Listenable for Maps where T is the type of its element
+/// See documentation for [Listenable]
 abstract class MapListenable<K, V> extends Listenable {
   const MapListenable();
 
@@ -15,10 +17,17 @@ abstract class MapListenable<K, V> extends Listenable {
   Map<K, V> get value;
 }
 
+/// A [CollectionNotifier] for Maps.
+/// Use the implemented Map methods on this class (rather than [value] to
+/// have your map modifications trigger any listeners on this notifier.
+/// To make multiple modifications and yet trigger listeners only once, use
+/// [asyncEditBlock], [syncEditBlock], or [completerEditBlock] - see
+/// [CollectionController] for more information on how these work.
 class MapNotifier<K, V> extends CollectionNotifier
     implements MapListenable<K, V>, Map<K, V>, CollectionController<Map<K, V>> {
   Map<K, V> _value;
 
+  /// Creates a [CollectionNotifier] that wraps this value.
   MapNotifier(this._value) : super();
 
   // Setters

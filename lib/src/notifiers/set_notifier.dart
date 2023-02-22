@@ -7,6 +7,8 @@ import 'package:collection/collection.dart';
 import '../extensions.dart';
 import './collection_notifier.dart';
 
+/// A basic Listenable for Sets where T is the type of its element
+/// See documentation for [Listenable]
 abstract class SetListenable<T> extends Listenable {
   const SetListenable();
 
@@ -17,6 +19,12 @@ abstract class SetListenable<T> extends Listenable {
   Set<T> get value;
 }
 
+/// A [CollectionNotifier] for Sets.
+/// Use the implemented Set methods on this class (rather than [value] to
+/// have your set modifications trigger any listeners on this notifier.
+/// To make multiple modifications and yet trigger listeners only once, use
+/// [asyncEditBlock], [syncEditBlock], or [completerEditBlock] - see
+/// [CollectionController] for more information on how these work.
 class SetNotifier<T> extends CollectionNotifier
     implements
         SetListenable<T>,
@@ -25,6 +33,7 @@ class SetNotifier<T> extends CollectionNotifier
         ExtendedIterable<T> {
   Set<T> _value;
 
+  /// Creates a [CollectionNotifier] that wraps this value.
   SetNotifier(this._value) : super();
 
   // Setters

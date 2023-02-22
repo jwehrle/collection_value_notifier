@@ -8,6 +8,8 @@ import 'dart:math';
 
 import 'package:collection_value_notifier/src/extensions.dart';
 
+/// A basic Listenable for Lists where T is the type of its element
+/// See documentation for [Listenable]
 abstract class ListListenable<T> extends Listenable {
   const ListListenable();
 
@@ -18,6 +20,12 @@ abstract class ListListenable<T> extends Listenable {
   List<T> get value;
 }
 
+/// A [CollectionNotifier] for Lists.
+/// Use the implemented List methods on this class (rather than [value] to
+/// have your list modifications trigger any listeners on this notifier.
+/// To make multiple modifications and yet trigger listeners only once, use
+/// [asyncEditBlock], [syncEditBlock], or [completerEditBlock] - see
+/// [CollectionController] for more information on how these work.
 class ListNotifier<T> extends CollectionNotifier
     implements
         ListListenable<T>,
@@ -27,6 +35,7 @@ class ListNotifier<T> extends CollectionNotifier
         ExtendedIterable<T> {
   List<T> _value;
 
+  /// Creates a [CollectionNotifier] that wraps this value.
   ListNotifier(this._value) : super();
 
   // Setters

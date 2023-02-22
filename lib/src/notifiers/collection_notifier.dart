@@ -2,16 +2,30 @@ library collection_notifier;
 
 import 'dart:async';
 import 'dart:collection';
+import 'package:collection_value_notifier/collections.dart';
 import 'package:flutter/foundation.dart';
 
 /// Adapted from ChangeNotifier and ValueListenable and ValueNotifier for Lists,
 /// Sets, and Maps and to expose notifyListeners().
 
+/// A VoidCallback wrapper element for a LinkedList of listeners
 class _ListenerEntry extends LinkedListEntry<_ListenerEntry> {
   _ListenerEntry(this.listener);
   final VoidCallback listener;
 }
 
+/// Copied from ChangeNotifier
+/// A class that can be extended or mixed in that provides a change notification
+/// API using [VoidCallback] for notifications.
+///
+/// It is O(1) for adding listeners and O(N) for removing listeners and dispatching
+/// notifications (where N is the number of listeners).
+///
+/// {@macro flutter.flutter.animatedbuilder_changenotifier.rebuild}
+///
+/// See also:
+///
+///  * [ListNotifier], [SetNotifier], and [MapNotifier]
 class CollectionNotifier implements Listenable {
   LinkedList<_ListenerEntry> _listeners = LinkedList<_ListenerEntry>();
 
@@ -69,6 +83,10 @@ class CollectionNotifier implements Listenable {
   }
 }
 
+/// An abstract class providing method signatures for modifying an underlying
+/// collection.
+/// See:
+/// [ListNotifier], [SetNotifier], and [MapNotifier]
 abstract class CollectionController<C> {
   /// Asynchronously evaluates whether the new value is different from current
   /// value using DeepCollectionEquality during a scheduled task between frames
