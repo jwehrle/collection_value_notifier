@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../notifiers/set_notifier.dart';
 
 /// Builds a [Widget] when given a concrete set value of a [SetValueWidgetBuilder<T>].

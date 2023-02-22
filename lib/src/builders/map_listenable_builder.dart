@@ -1,5 +1,5 @@
 import 'package:collection_value_notifier/src/notifiers/map_notifier.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 /// Builds a [Widget] when given a concrete map value of a [MapValueWidgetBuilder<T>].
 ///

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../notifiers/list_notifier.dart';
 
 /// Builds a [Widget] when given a concrete list value of a [ListValueWidgetBuilder<T>].
