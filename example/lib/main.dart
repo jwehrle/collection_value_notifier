@@ -56,14 +56,28 @@ class _MyHomePageState extends State<MyHomePage> {
   final MapNotifier<String, int> _mapNotifier =
       MapNotifier({'0': 0, '1': 1, '2': 2});
 
+  /// This method no longer calls setState() - rather the Text Widgets
+  /// associated with each notifier only rebuild when their underlying
+  /// collections have changed.
   void _incrementCounter() {
     _listNotifier.syncEditBlock((list) {
       list.shuffle(Random());
       return list;
     });
-    _setNotifier.collection = Set.from(_setNotifier.value.map((e) => e + 1));
-    _mapNotifier.collection = Map.from(
-        _mapNotifier.value.map((key, value) => MapEntry(key, value + 1)));
+    _setNotifier.syncEditBlock((set) {
+      Random random = Random();
+      final result = set.union(<int>{random.nextInt(9)});
+      if (result.length > 3) {
+        result.remove(result.first);
+      }
+      return result;
+    });
+    _mapNotifier.syncEditBlock((map) {
+      map['0'] = Random().nextInt(9);
+      map['1'] = Random().nextInt(9);
+      map['2'] = Random().nextInt(9);
+      return map;
+    });
   }
 
   @override
@@ -74,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    final style = Theme.of(context).textTheme.headlineMedium;
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -100,46 +115,21 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have shuffled the list:',
-            ),
-            ListValueListenableBuilder<int>(
-                valueListenable: _listNotifier,
-                builder: (context, list, _) {
-                  return Text(
-                    '$list',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
-            const Text(
-              'You have incremented the elements of the set:',
-            ),
-            SetListenableBuilder<int>(
-                valueListenable: _setNotifier,
-                builder: (context, set, _) {
-                  return Text(
-                    '$set',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
-            const Text(
-              'You have incremented the values of the map:',
-            ),
-            MapValueListenableBuilder<String, int>(
-                valueListenable: _mapNotifier,
-                builder: (context, map, _) {
-                  return Text(
-                    '$map',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
+            const Text('Collections only rebuild when they have changed.'),
+            const Padding(padding: EdgeInsets.only(top: 16.0)),
+            const Text('You have shuffled the list:'),
+            ListWidget(listListenable: _listNotifier),
+            const Text('You have randomized a set:'),
+            SetWidget(setListenable: _setNotifier),
+            const Text('You have randomized map values:'),
+            MapWidget(mapListenable: _mapNotifier),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Do something',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.numbers),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -150,5 +140,58 @@ class _MyHomePageState extends State<MyHomePage> {
     _setNotifier.dispose();
     _mapNotifier.dispose();
     super.dispose();
+  }
+}
+
+/// Stateless widgets for changeable collections
+
+class ListWidget extends StatelessWidget {
+  final ListListenable<int> listListenable;
+
+  const ListWidget({super.key, required this.listListenable});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.headlineMedium;
+    return ListValueListenableBuilder<int>(
+      valueListenable: listListenable,
+      builder: (context, list, _) {
+        return Text('$list', style: style);
+      },
+    );
+  }
+}
+
+class SetWidget extends StatelessWidget {
+  final SetListenable<int> setListenable;
+
+  const SetWidget({super.key, required this.setListenable});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.headlineMedium;
+    return SetListenableBuilder<int>(
+      valueListenable: setListenable,
+      builder: (context, set, _) {
+        return Text('$set', style: style);
+      },
+    );
+  }
+}
+
+class MapWidget extends StatelessWidget {
+  final MapListenable<String, int> mapListenable;
+
+  const MapWidget({super.key, required this.mapListenable});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.headlineMedium;
+    return MapValueListenableBuilder<String, int>(
+      valueListenable: mapListenable,
+      builder: (context, map, _) {
+        return Text('$map', style: style);
+      },
+    );
   }
 }
