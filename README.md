@@ -15,6 +15,9 @@ Use this package in your Flutter app to:
 
 ## Usage
 
+    //Import
+    import 'package:collection_value_notifier/collections.dart';
+
     // Declare 
     final ListNotifier<int> listNotifier = ListNotifier([0, 1, 2]);
     
