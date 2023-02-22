@@ -4,7 +4,7 @@ Works with all Flutter use-cases since it has no platform plugins and does not r
 
 ![](assets/example_gif_v1.gif)
 
-##Features
+## Features
 
 Use this package in your Flutter app to:
 - Trigger listen for changes to an underlying data set.
@@ -12,3 +12,30 @@ Use this package in your Flutter app to:
 - Inject collections to child widgets and intelligently propagate those changes to any other listeners.
 - Maintain one complex collection-based state throughout the app.
 - Use more StatelessWidgets with collection builder widgets.
+
+## Usage
+
+    // Declare 
+    final ListNotifier<int> _listNotifier = ListNotifier([0, 1, 2]);
+    
+    // Add listener
+    listNotifier.addListener(() {});
+    // Remove listener
+    listNotifier.removeListener(() {});
+
+    // Builder
+    ListListenableBuilder<int>(
+      valueListenable: listListenable,
+      builder: (context, list, _) {
+        < do something with list >
+      },
+    );
+
+    // Modifcations such as
+    listNotifier[0] = 10;
+    or    
+    listNotifier.removeAt(1);
+    // will notify listeners.
+
+    // Remember to dispose just as you would for a ValueNotifier
+    listNotifier.dispose();
