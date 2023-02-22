@@ -100,13 +100,13 @@ typedef MapValueWidgetBuilder<K, V> = Widget Function(
 /// }
 /// ```
 /// {@end-tool}
-class MapValueListenableBuilder<K, V> extends StatefulWidget {
-  /// Creates a [MapValueListenableBuilder].
+class MapListenableBuilder<K, V> extends StatefulWidget {
+  /// Creates a [MapListenableBuilder].
   ///
   /// The [valueListenable] and [builder] arguments must not be null.
   /// The [child] is optional but is good practice to use if part of the widget
   /// subtree does not depend on the value of the [valueListenable].
-  const MapValueListenableBuilder({
+  const MapListenableBuilder({
     Key? key,
     required this.valueListenable,
     required this.builder,
@@ -137,12 +137,11 @@ class MapValueListenableBuilder<K, V> extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<StatefulWidget> createState() =>
-      _MapValueListenableBuilderState<K, V>();
+  State<StatefulWidget> createState() => _MapListenableBuilderState<K, V>();
 }
 
-class _MapValueListenableBuilderState<K, V>
-    extends State<MapValueListenableBuilder<K, V>> {
+class _MapListenableBuilderState<K, V>
+    extends State<MapListenableBuilder<K, V>> {
   late Map<K, V> value;
 
   @override
@@ -153,7 +152,7 @@ class _MapValueListenableBuilderState<K, V>
   }
 
   @override
-  void didUpdateWidget(MapValueListenableBuilder<K, V> oldWidget) {
+  void didUpdateWidget(MapListenableBuilder<K, V> oldWidget) {
     if (oldWidget.valueListenable != widget.valueListenable) {
       oldWidget.valueListenable.removeListener(_valueChanged);
       value = widget.valueListenable.value;

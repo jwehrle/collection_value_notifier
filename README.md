@@ -1,14 +1,14 @@
-# collection_value_notifier
+A Flutter package for using Lists, Sets, and Maps in ChangeNotifiers with built-in builders triggered by collection modifications. These make perfect base classes for custom controllers.
 
-A value notifier and builder package for lists, sets, and maps.
+Works with all Flutter use-cases since it has no platform plugins and does not require Material or Cupertino parent widgets.
 
-## Getting Started
+![](assets/example_gif_v1.gif)
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+##Features
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Use this package in your Flutter app to:
+- Trigger listen for changes to an underlying data set.
+- Rebuild widgets only when a deep equivalence evaluation shows a list, set, map has been modified.
+- Inject collections to child widgets and intelligently propagate those changes to any other listeners.
+- Maintain one complex collection-based state throughout the app.
+- Use more StatelessWidgets with collection builder widgets.

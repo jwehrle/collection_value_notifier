@@ -100,13 +100,13 @@ typedef ListValueWidgetBuilder<T> = Widget Function(
 /// }
 /// ```
 /// {@end-tool}
-class ListValueListenableBuilder<T> extends StatefulWidget {
-  /// Creates a [ListValueListenableBuilder].
+class ListListenableBuilder<T> extends StatefulWidget {
+  /// Creates a [ListListenableBuilder].
   ///
   /// The [valueListenable] and [builder] arguments must not be null.
   /// The [child] is optional but is good practice to use if part of the widget
   /// subtree does not depend on the value of the [valueListenable].
-  const ListValueListenableBuilder({
+  const ListListenableBuilder({
     Key? key,
     required this.valueListenable,
     required this.builder,
@@ -137,11 +137,10 @@ class ListValueListenableBuilder<T> extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<StatefulWidget> createState() => _ListValueListenableBuilderState<T>();
+  State<StatefulWidget> createState() => _ListListenableBuilderState<T>();
 }
 
-class _ListValueListenableBuilderState<T>
-    extends State<ListValueListenableBuilder<T>> {
+class _ListListenableBuilderState<T> extends State<ListListenableBuilder<T>> {
   late List<T> value;
 
   @override
@@ -152,7 +151,7 @@ class _ListValueListenableBuilderState<T>
   }
 
   @override
-  void didUpdateWidget(ListValueListenableBuilder<T> oldWidget) {
+  void didUpdateWidget(ListListenableBuilder<T> oldWidget) {
     if (oldWidget.valueListenable != widget.valueListenable) {
       oldWidget.valueListenable.removeListener(_valueChanged);
       value = widget.valueListenable.value;

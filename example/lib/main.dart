@@ -152,7 +152,7 @@ class ListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.headlineMedium;
-    return ListValueListenableBuilder<int>(
+    return ListListenableBuilder<int>(
       valueListenable: listListenable,
       builder: (context, list, _) {
         return Text('$list', style: style);
@@ -186,7 +186,7 @@ class MapWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.headlineMedium;
-    return MapValueListenableBuilder<String, int>(
+    return MapListenableBuilder<String, int>(
       valueListenable: mapListenable,
       builder: (context, map, _) {
         return Text('$map', style: style);
