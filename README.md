@@ -16,7 +16,7 @@ Use this package in your Flutter app to:
 ## Usage
 
     // Declare 
-    final ListNotifier<int> _listNotifier = ListNotifier([0, 1, 2]);
+    final ListNotifier<int> listNotifier = ListNotifier([0, 1, 2]);
     
     // Add listener
     listNotifier.addListener(() {});
