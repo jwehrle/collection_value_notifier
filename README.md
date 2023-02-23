@@ -42,3 +42,11 @@ Use this package in your Flutter app to:
 
     // Remember to dispose just as you would for a ValueNotifier
     listNotifier.dispose();
+
+## Installing
+
+    flutter pub add collection_value_notifier
+
+## Repository (Github)
+
+[https://github.com/jwehrle/collection_value_notifier.git](https://github.com/jwehrle/collection_value_notifier.git)
