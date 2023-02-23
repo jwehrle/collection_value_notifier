@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:collection_value_notifier/src/extensions.dart';
-import 'package:collection_value_notifier/collections.dart';
+import 'package:collection_value_notifier/collection_value_notifier.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 

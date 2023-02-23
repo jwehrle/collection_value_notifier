@@ -2,7 +2,7 @@ library collection_notifier;
 
 import 'dart:async';
 import 'dart:collection';
-import 'package:collection_value_notifier/collections.dart';
+import 'package:collection_value_notifier/collection_value_notifier.dart';
 import 'package:flutter/foundation.dart';
 
 /// Adapted from ChangeNotifier and ValueListenable and ValueNotifier for Lists,

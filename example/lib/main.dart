@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:collection_value_notifier/collections.dart';
+import 'package:collection_value_notifier/collection_value_notifier.dart';
 import 'package:flutter/material.dart';
 
 void main() {
