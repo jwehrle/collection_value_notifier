@@ -144,8 +144,11 @@ class MapNotifier<K, V> extends CollectionNotifier
 
   @override
   V putIfAbsent(K key, V Function() ifAbsent) {
+    bool shouldNotify = !_value.containsKey(key);
     V result = _value.putIfAbsent(key, ifAbsent);
-    notifyListeners();
+    if (shouldNotify) {
+      notifyListeners();
+    }
     return result;
   }
 
