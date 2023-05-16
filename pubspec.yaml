@@ -1,6 +1,6 @@
 name: collection_value_notifier
 description: A value notifier and builder package for lists, sets, and maps.
-version: 0.0.2
+version: 0.0.3
 homepage: "https://github.com/jwehrle/collection_value_notifier"
 
 environment:
