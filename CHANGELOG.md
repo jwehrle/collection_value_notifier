@@ -1,3 +1,8 @@
+## 1.0.0
+
+* Updated to Flutter 3.10.4 and Dart 3.0.3.
+* Improved example readability.
+
 ## 0.0.3
 
 * Updated example for readability

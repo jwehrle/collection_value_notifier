@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.titleMedium;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -72,15 +73,30 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('Collections rebuild when they have changed without calling setState.'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Collections rebuild when they have changed without calling setState.',
+                style: style,
+              ),
+            ),
             const Padding(padding: EdgeInsets.only(top: 16.0)),
-            const Text('You have shuffled the list:'),
+            Text(
+              'You have shuffled the list:',
+              style: style,
+            ),
             ListWidget(listListenable: _listNotifier),
             const Padding(padding: EdgeInsets.only(top: 16.0)),
-            const Text('You have randomized a set:'),
+            Text(
+              'You have randomized a set:',
+              style: style,
+            ),
             SetWidget(setListenable: _setNotifier),
             const Padding(padding: EdgeInsets.only(top: 16.0)),
-            const Text('You have randomized map values:'),
+            Text(
+              'You have randomized map values:',
+              style: style,
+            ),
             MapWidget(mapListenable: _mapNotifier),
           ],
         ),
